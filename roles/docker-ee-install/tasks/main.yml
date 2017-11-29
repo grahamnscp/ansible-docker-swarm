@@ -1,0 +1,126 @@
+---
+
+# Setup docker storage
+
+# devicemapper
+- stat: path=/etc/lvm/profile/docker-thinpool.profile
+  register: profile_devicemapper
+
+#- debug: var=profile_devicemapper
+
+- include: docker-storage-devicemapper.yml
+  when: 
+    - profile_devicemapper.stat.exists == False
+    - docker_storage_driver == "devicemapper"
+
+# overlay2
+- stat: path=/dev/docker_vg/docker
+  register: profile_overlay2
+
+- include: docker-storage-overlay2.yml
+  when: 
+    - profile_overlay2.stat.exists == False
+    - docker_storage_driver == "overlay2"
+
+
+# Deploy docker-ee via docker store yum repo
+
+- name: "Install libselinux-python to allow file copy"
+  yum:
+    name: libselinux-python
+    state: present
+
+
+# setup the repo
+
+- name: "Create docker repo dockerurl yum vars"
+  template:
+    src: dockerurl.j2
+    dest: /etc/yum/vars/dockerurl
+    owner: root
+    group: root
+
+- name: "Add Docker yum repo"
+  template: 
+    src: docker-ee.repo.j2
+    dest: /etc/yum.repos.d/docker-ee.repo
+    owner: root
+    group: root
+
+
+# Add GPG key to rpm database
+
+- name: "Add docker GPG key to RPM database"
+  rpm_key:
+    state: present
+    key: "{{ docker_ee_url }}/gpg"
+
+
+# Install docker-ee package
+
+- name: "Enable rhel-server-extras repo (contains container-selinux package)"
+  ini_file:
+    dest: /etc/yum.repos.d/redhat-rhui.repo
+    section: rhui-REGION-rhel-server-extras
+    option: enabled
+    value: 1
+
+- name: "Install container-selinux package"
+  yum:
+    name: container-selinux
+    update_cache: yes
+    state: installed
+
+- name: "Install Docker package"
+  yum:
+    name: docker-ee
+    update_cache: yes
+    state: installed
+
+- name: "Ensure /etc/docker dir exists"
+  file:
+    path: /etc/docker
+    state: directory
+
+
+# Configure any daemon options 
+- name: "Configure Docker engine (overlay2)"
+  copy: 
+    src: daemon-overlay2.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+  when: docker_storage_driver == "overlay2"
+
+- name: "Configure Docker engine (devicemapper)"
+  copy: 
+    src: daemon-devicemapper.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+  when: docker_storage_driver == "devicemapper"
+
+# devicemapper error device in use
+#- stat: path=/usr/lib/systemd/system/docker.service
+#  register: docker_service_config
+#
+#- name: "Add MountFlags=slave to docker systemd service config"
+#  lineinfile:
+#    dest=/usr/lib/systemd/system/docker.service
+#    line="MountFlags{{ "=" }}slave"
+#    regexp="^MountFlags.*$"
+#    owner=root
+#    state=present
+#    insertafter="^Restart=on-failure"
+#  when: docker_service_config.stat.exists == True
+
+
+- name: "Ensure docker engine is started" 
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: "Add centos user to docker group"
+  user: name=centos groups=docker append=yes
+

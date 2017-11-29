@@ -1,0 +1,24 @@
+---
+
+- name: "Configure docker-thinpool lvm profile auto extend"
+  template:
+    src: docker-thinpool.profile.j2
+    dest: /etc/lvm/profile/docker-thinpool.profile
+    owner: root
+    group: root
+
+- name: "Creating docker-thinpool storage script.."
+  template:
+    src: create-docker-thinpool.sh.j2
+    dest: /root/create-docker-thinpool.sh
+    owner: root
+    group: root
+    mode: 755
+
+- name: "Creating docker-thinpool.."
+  shell: /root/create-docker-thinpool.sh 2>&1 | /bin/tee -a /root/create-docker-thinpool.log
+  args:
+    executable: /bin/sh
+    chdir: /root
+    creates: /root/create-docker-thinpool.log
+

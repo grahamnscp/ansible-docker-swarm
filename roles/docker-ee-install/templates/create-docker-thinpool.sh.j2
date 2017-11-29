@@ -1,0 +1,15 @@
+#!/bin/sh
+
+/usr/sbin/pvcreate {{ docker_storage_device }}
+/usr/sbin/vgcreate docker {{ docker_storage_device }}
+
+/usr/sbin/lvcreate --wipesignatures y -n thinpool docker -l 95%VG
+/usr/sbin/lvcreate --wipesignatures y -n thinpoolmeta docker -l 1%VG
+
+/usr/sbin/lvconvert -y --zero n -c 512K --thinpool docker/thinpool --poolmetadata docker/thinpoolmeta
+
+
+/usr/sbin/lvchange --metadataprofile docker-thinpool docker/thinpool
+
+/usr/sbin/lvs -o+seg_monitor
+

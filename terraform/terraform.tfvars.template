@@ -1,0 +1,3 @@
+access_key="##TF_AWS_ACCESS_KEY##"
+secret_key="##TF_AWS_SECRET_KEY##"
+key_name="##TF_AWS_KEY_NAME##"

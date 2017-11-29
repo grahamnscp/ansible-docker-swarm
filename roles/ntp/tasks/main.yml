@@ -1,0 +1,22 @@
+---
+
+- name: "Install NTP package"
+  yum: 
+    name: ntp
+    state: present
+
+- name: "Check if clock is synchronised"
+  shell: "/usr/bin/ntpstat"
+  register: status
+  ignore_errors: yes # command will fail if service not running
+  
+  # Force clock sync if it is not
+- include: sync-clock.yml
+  when: status.rc != 0
+
+- name: "Ensure ntpd service is enabled and started"
+  systemd:
+    name: ntpd
+    state: started
+    enabled: yes
+

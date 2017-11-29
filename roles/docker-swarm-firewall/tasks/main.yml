@@ -1,0 +1,28 @@
+---
+
+# Only setup host firewall and restart docker if not already configured.  ie. reruning playbook
+- stat: path=/root/firewall-configured
+  register: firewall_configured
+
+
+# Disable firewall
+- include: disable-firewall.yml
+  when:
+    - ( firewall_enabled == "false" or firewall_enabled == "False" )
+
+
+# Enable and Configure firwall
+# - iptables:
+- include: swarm-iptables.yml
+  when: 
+    - firewall_configured.stat.exists == False
+    - ( firewall_enabled == "true" or firewall_enabled == "True" )
+    - firewall_type == "iptables"
+
+# - firewalld:
+- include: swarm-firewalld.yml
+  when:
+    - firewall_configured.stat.exists == False
+    - ( firewall_enabled == "true" or firewall_enabled == "True" )
+    - firewall_type == "firewalld"
+

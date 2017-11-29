@@ -1,0 +1,10 @@
+---
+
+#- debug:
+#    msg: "worker token is: {{ hostvars[groups['primary'][0]]['worker_token'].stdout }} IP is: {{ hostvars[groups['primary'][0]]['ansible_eth0']['ipv4']['address'] }}"
+
+- name: "Join worker to swarm"
+  shell: /bin/docker swarm join --token {{ hostvars[groups['primary'][0]]['worker_token'].stdout }} {{ hostvars[groups['primary'][0]]['ansible_eth0']['ipv4']['address'] }} > /root/swarm-worker-join.log
+  args:
+    creates: /root/swarm-worker-join.log
+

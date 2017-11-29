@@ -1,0 +1,10 @@
+#!/bin/sh
+
+/usr/sbin/pvcreate {{ docker_storage_device }}
+/usr/sbin/vgcreate docker_vg {{ docker_storage_device }}
+/usr/sbin/lvcreate --wipesignatures y -n docker -l 95%VG docker_vg
+/sbin/mkfs.xfs /dev/docker_vg/docker
+mkdir -p /var/lib/docker
+grep -q -F 'docker' /etc/fstab || echo '/dev/docker_vg/docker /var/lib/docker xfs defaults 0 0' >> /etc/fstab
+mount /var/lib/docker
+/sbin/restorecon -Rv /var/lib/docker

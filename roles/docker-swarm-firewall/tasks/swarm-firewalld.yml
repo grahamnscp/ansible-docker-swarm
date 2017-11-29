@@ -1,0 +1,37 @@
+---
+
+# firewalld
+- name: "Install firewalld"
+  yum:
+    name: firewalld
+    update_cache: yes
+    state: installed
+
+- name: "Ensure firewalld running"
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started
+
+- name: "Open firewalld ports"
+  copy:
+    src: configure-firewalld.sh
+    dest: /root/configure-firewalld.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- shell: /bin/sh /root/configure-firewalld.sh 2>&1 | /usr/bin/tee -a /root/configure-firewalld.log
+  args:
+    creates: /root/configure-firewalld.log
+
+#- name: "Restart Docker daemon after restarting firewalld to reload dynamic chains"
+#  systemd:
+#    name: docker
+#    state: restarted
+
+# create firewall installed flag file
+- shell: '/bin/echo "docker swarm host firewall ports open" > /root/firewall-configired'
+  args:
+    creates: /root/firewall-configired
+

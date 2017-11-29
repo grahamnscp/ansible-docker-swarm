@@ -1,0 +1,27 @@
+---
+
+# quick hosts reference:
+#[primary] manager1
+#[managers] manager2 manager3
+#[workers] worker1 worker2 ..
+
+- hosts: all
+  roles:
+  - ntp
+  - pre-deploy
+  - docker-swarm-firewall
+  - docker-ee-install
+
+- hosts: primary
+  roles:
+    - docker-swarm-init
+
+- hosts: managers
+  serial: 1 # join managers one at a time
+  roles:
+    - docker-swarm-manager
+
+- hosts: workers
+  roles:
+    - docker-swarm-worker
+

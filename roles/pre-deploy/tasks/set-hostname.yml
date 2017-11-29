@@ -1,0 +1,31 @@
+- debug:
+   msg: "HOST: {{ inventory_hostname }} fqdn={{ fqdn }}, ip={{ ansible_host }}"
+
+- name: "Set hostname fqdn"
+  shell: hostnamectl set-hostname {{ fqdn }}
+
+- name: "Add public hostname to local hosts file"
+  lineinfile:
+    dest=/etc/hosts
+    line="{{ ansible_default_ipv4['address'] }}   {{ fqdn }}"
+    regexp="^.*{{ fqdn }}.*$"
+    owner=root
+    state=present
+    insertafter=EOF
+
+
+# Note: on AWS the hostname does not survive a reboot, adding this line preserves the setting:
+
+- stat: path=/etc/cloud/cloud.cfg
+  register: cloud_cfg
+
+- name: "Modify cloud.cfg to persist hostname during reboots"
+  lineinfile:
+    dest=/etc/cloud/cloud.cfg
+    line="preserve_hostname{{ ":" }} true"
+    regexp="^preserve_hostname.*$"
+    owner=root
+    state=present
+    insertafter=EOF
+  when: cloud_cfg.stat.exists == True
+

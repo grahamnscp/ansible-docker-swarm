@@ -1,0 +1,5 @@
+[docker-ee-{{ docker_ee_release }}]
+name=Docker EE {{ docker_ee_release }} - $basearch
+baseurl=$dockerurl/{{ docker_os_version }}/$basearch/{{ docker_ee_release }}/
+enabled=1
+gpgcheck=1

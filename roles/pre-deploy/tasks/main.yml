@@ -1,0 +1,62 @@
+---
+
+- include: set-hostname.yml
+
+
+# Add alias to root's .bashrc
+- lineinfile:
+    dest=/root/.bashrc
+    line="alias l='ls -latFrh'"
+    regexp="^.*latFrh.*$"
+    owner=root
+    state=present
+    insertafter=EOF
+
+
+# Various Packages
+- name: "Install LVM needed for devicemapper docker storage"
+  yum:
+    name: lvm2
+    update_cache: yes
+    state: installed
+
+- name: "Install PolicyCoreUtils package for SELinux CLI"
+  yum:
+    name: policycoreutils
+    update_cache: yes
+    state: installed
+
+- name: "Install iproute package"
+  yum:
+    name: iproute
+    update_cache: yes
+    state: installed
+
+- name: "Install net-tools package"
+  yum:
+    name: net-tools
+    update_cache: yes
+    state: installed
+
+- name: "Install bind-utils package"
+  yum:
+    name: bind-utils
+    update_cache: yes
+    state: installed
+
+- name: "Install bridge-utils package"
+  yum:
+    name: bridge-utils
+    update_cache: yes
+    state: installed
+
+#- name: "Install nfs-utils package"
+#  yum:
+#    name: nfs-utils
+#    update_cache: yes
+#    state: installed
+
+
+# Update to latest patches and reboot if necessary
+- include: update-packages.yml
+

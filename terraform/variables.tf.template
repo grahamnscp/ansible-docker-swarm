@@ -1,0 +1,58 @@
+# Global Variables:
+
+variable "name_prefix" {
+  default = "##TF_AWS_INSTANCE_PREFIX##"
+}
+
+variable "domainname" {
+  default = "##TF_AWS_DOMAINNAME##"
+}
+
+# Existing route53 zone_id to add sub domain entries to:
+variable "route53_zone_id" {
+  description = "Existing Route53 zone"
+  default = "##TF_AWS_ROUTE53_ZONE_ID##"
+}
+
+#
+variable "access_key" {}
+variable "secret_key" {}
+variable "key_name" {}
+
+
+variable "aws_region" {
+  default = "##TF_AWS_REGION##"
+}
+
+variable "availability_zones" {
+  default = "##TF_AWS_AVAILABILITY_ZONES##"
+}
+
+variable "aws_ami" {
+  default = "##TF_AWS_AMI##"
+}
+
+
+variable "docker_volume_size" {
+  description = "Size in GB for the second volume attached to the instance used for docker devmapper pool"
+  default = ##TF_AWS_DOCKER_VOLUME_SIZE##
+}
+
+variable "manager_count" {
+  description = "Number of manager nodes, needs to be 3, 5 or 7"
+  default = ##TF_AWS_MANAGER_COUNT##
+}
+
+variable "worker_count" {
+  description = "Number of linux worker nodes"
+  default = ##TF_AWS_WORKER_COUNT##
+}
+
+variable "manager_instance_type" {
+  default = "##TF_AWS_MANAGER_INSTANCE_TYPE##"
+}
+
+variable "worker_instance_type" {
+  default = "##TF_AWS_WORKER_INSTANCE_TYPE##"
+}
+

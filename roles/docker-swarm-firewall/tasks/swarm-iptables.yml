@@ -1,0 +1,40 @@
+---
+
+# iptables
+- name: "Install iptables-services"
+  yum:
+    name: iptables-services
+    update_cache: yes
+    state: installed
+
+- name: "Ensure iptables running"
+  systemd:
+    name: iptables
+    enabled: yes
+    state: started
+
+- name: "Opening ports for docker swarm"
+  copy:
+    src: swarm-iptables
+    dest: /etc/sysconfig/iptables
+    owner: root
+    group: root
+
+- name: "check selinux on changed iptables file"
+  command: restorecon -Rv /etc/sysconfig/iptables
+
+- name: "Restart iptables to load changes rules"
+  systemd:
+    name: iptables
+    state: restarted
+
+#- name: "Restart Docker daemon after restarting iptables-services to reload dynamic chains"
+#  systemd:
+#    name: docker
+#    state: restarted
+
+# create firewall installed flag file
+- shell: '/bin/echo "docker swarm host firewall ports open" > /root/firewall-configured'
+  args:
+    creates: /root/firewall-configured
+

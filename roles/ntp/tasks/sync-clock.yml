@@ -1,0 +1,14 @@
+---
+
+- name: "Need to sync clock ({{ fqdn }}) stopping ntpd service"
+  systemd:
+    name: ntpd
+    state: stopped
+
+- name: "Set clock to right time"
+  shell: "/usr/sbin/ntpdate pool.ntp.org"
+
+- name: "Restarting ntpd"
+  systemd:
+    name: ntpd
+    state: started

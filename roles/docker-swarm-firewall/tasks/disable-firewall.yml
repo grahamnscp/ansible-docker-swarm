@@ -1,0 +1,18 @@
+---
+
+# firewalld
+- name: "Remove firewalld"
+  yum:
+    name: firewalld
+    state: absent
+
+# iptables-services
+- name: "Remove iptables-services"
+  yum:
+    name: iptables-services
+    state: absent
+
+#- name: "Restart Docker daemon after restarting iptables-services to reload dynamic chains"
+#  systemd:
+#    name: docker
+#    state: restarted

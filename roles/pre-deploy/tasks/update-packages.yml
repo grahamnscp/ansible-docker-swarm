@@ -1,0 +1,33 @@
+---
+
+- name: "Update to lastest packages"
+  yum: name=* state=latest
+
+- name: "Check for reboot required"
+  shell: LAST_KERNEL=$(rpm -q --last kernel | awk 'NR==1{sub(/kernel-/,""); print $1}'); CURRENT_KERNEL=$(uname -r); if [ $LAST_KERNEL != $CURRENT_KERNEL ]; then echo 'yes' ; else echo 'no'; fi
+  ignore_errors: true
+  register: reboot_required
+
+- name: "Rebooting..."
+  shell: sleep 5 && shutdown -r now 'Automated reboot required after kernel update'
+  async: 1
+  poll: 0
+  sudo: true
+  ignore_errors: true
+  when: reboot_required.stdout.find("yes") != -1
+  register: rebooting
+
+- name: "pause for host to return after reboot.."
+  pause: seconds=120
+  when: rebooting|changed
+
+- name: "Wait for host to return after reboot.."
+  wait_for:
+    host={{ fqdn }}
+    port=22
+    state=started
+    delay=40
+    timeout=800
+  become: false
+  when: rebooting|changed
+

@@ -1,0 +1,46 @@
+# Ansible 'hosts' template file file used to generate actual hosts file
+#
+# Param values a populated by run-terraform.sh
+#
+
+[all:vars]
+
+# for local VMs
+#ansible_user=root 
+#ansible_become=yes
+#ansible_become_pass=password
+
+# for AWS
+ansible_user=##ANSIBLE_USER##
+ansible_port=22
+ansible_become=yes
+ansible_ssh_private_key_file=##ANSIBLE_SSH_PRIVATE_KEY_FILE##
+
+# Ansible Options
+timeout=120
+deprecation_warnings=False
+
+# Deployment Switches
+firewall_enabled=##FIREWALL_ENABLED##
+firewall_type=##FIREWALL_TYPE##
+docker_storage_driver=##DOCKER_STORAGE_DRIVER##
+
+# DNS - Route53
+domain_name=##DOMAIN_NAME##
+
+# Docker Config
+docker_storage_device=##DOCKER_STORAGE_DEVICE##
+#
+docker_ee_url=##DOCKER_EE_URL##
+docker_os_version=##DOCKER_OS_VERSION##
+docker_ee_release=##DOCKER_EE_RELEASE##
+
+
+# Instances:
+[primary]
+manager1 ansible_host=##MANAGER_PUBLIC_IP_1##  fqdn=##MANAGER_NAME_1##
+
+[managers]
+manager2 ansible_host=##MANAGER_PUBLIC_IP_2##  fqdn=##MANAGER_NAME_2##
+manager3 ansible_host=##MANAGER_PUBLIC_IP_3##  fqdn=##MANAGER_NAME_3##
+
